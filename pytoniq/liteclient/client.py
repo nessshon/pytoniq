@@ -183,8 +183,10 @@ class LiteClient:
                     request.set_result(result)
         except asyncio.CancelledError:
             pass # normal shutdown path
+        except (ConnectionResetError, asyncio.IncompleteReadError, ConnectionAbortedError, TimeoutError):
+            return # expected network tear-downs
         except Exception as e:
-            self.logger.error(f'listener crashed: {e!r}')
+            self.logger.exception(f"listener crashed: {e}")
             with suppress(Exception):
                 await self.close()
 
