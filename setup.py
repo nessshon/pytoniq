@@ -18,7 +18,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.11",
         "Topic :: Software Development :: Libraries",
     ],
-    url="https://github.com/yungwine/pytoniq",
+    url="https://github.com/nessshon/pytoniq",
     python_requires='>=3.9',
     py_modules=["pytoniq"],
     install_requires=[
