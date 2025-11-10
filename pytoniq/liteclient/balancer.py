@@ -73,12 +73,22 @@ class LiteBalancer:
                 if connected:
                     have_blockstore = True
 
-                async def f(): return connected
-                tasks.append(f())
-        result = await asyncio.gather(*tasks)
+                # keep index alignment with self._peers
+                async def _ret(v=connected):
+                    return v
+                tasks.append(_ret())
+
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        self._alive_peers.clear()
         for i, client in enumerate(self._peers):
-            if result[i]:
+            r = results[i]
+            # ignore cancelled or failed connections
+            if isinstance(r, (asyncio.CancelledError, Exception)):
+                continue
+            # mark successfully connected peers as alive
+            if r:
                 self._alive_peers.add(i)
+
         await self._find_archives()
         self._checker = asyncio.create_task(self._check_peers())
         self._delete_unsync_peers()
